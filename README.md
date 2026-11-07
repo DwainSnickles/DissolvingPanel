@@ -25,6 +25,21 @@ panel.DissolveOut();
 panel.DissolveIn();
 ```
 
+## Screenshots
+
+Nine of the built-in effects, each captured mid-transition at 45 %:
+
+![Nine DissolvingPanel effects captured mid-transition](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/effects.png)
+
+`Circle`, frame by frame at 20 %, 45 %, 70 % and 95 %. The panel draws the snapshot
+it took on the first frame, so nothing behind it reflows or repaints mid-animation:
+
+![The Circle effect frame by frame](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/sequence.png)
+
+The sample app, with every option live:
+
+![The sample WinForms app](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/demo.png)
+
 ## Install
 
 ```
@@ -57,6 +72,23 @@ Targets `net8.0-windows` and later, using `UseWindowsForms`.
 
 Selecting the control in the Visual Studio designer shows a **Dissolve** smart tag
 with the effect, duration, fade option and a reset command.
+
+## Sample app
+
+`samples/DissolvingPanelDemo` is a small WinForms app wired to the control: pick an
+effect, a duration, a slide edge and whether to fade, and the card replays straight
+away. **Next page** swaps the content and animates the new content in.
+
+```bash
+dotnet run --project samples/DissolvingPanelDemo
+```
+
+The images above come from that same app running offscreen through `RenderFrame`,
+so they can be regenerated without taking a screenshot:
+
+```bash
+dotnet run --project samples/DissolvingPanelDemo -- --shots docs
+```
 
 ## Notes
 

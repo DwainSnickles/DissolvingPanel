@@ -28,6 +28,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- the samples folder has its own project; keep it out of the library build and package -->
+    <Compile Remove="samples\**" />
+    <None Remove="samples\**" />
+    <EmbeddedResource Remove="samples\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
