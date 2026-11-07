@@ -164,12 +164,23 @@ internal sealed class DemoForm : Form
 
         var item = _effects.Items[e.Index];
         var isGroup = item is EffectGroup;
-        e.DrawBackground();
+
+        // The closed combo reuses this handler for its edit portion, where a
+        // selection highlight would look wrong - paint it like a plain field.
+        var isEdit = (e.State & DrawItemState.ComboBoxEdit) == DrawItemState.ComboBoxEdit;
+        if (isEdit)
+        {
+            e.Graphics.FillRectangle(SystemBrushes.Window, e.Bounds);
+        }
+        else
+        {
+            e.DrawBackground();
+        }
 
         var bounds = isGroup
             ? e.Bounds
             : new Rectangle(e.Bounds.X + 10, e.Bounds.Y, e.Bounds.Width - 10, e.Bounds.Height);
-        var colour = (e.State & DrawItemState.Selected) == DrawItemState.Selected
+        var colour = !isEdit && (e.State & DrawItemState.Selected) == DrawItemState.Selected
             ? SystemColors.HighlightText
             : isGroup ? SystemColors.GrayText : SystemColors.ControlText;
 
