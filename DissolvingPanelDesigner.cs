@@ -72,6 +72,12 @@ public class DissolvingPanelActionList : DesignerActionList
         set => SetValue(nameof(DissolvingPanel.Duration), value);
     }
 
+    public EasingMode Easing
+    {
+        get => _panel.Easing;
+        set => SetValue(nameof(DissolvingPanel.Easing), value);
+    }
+
     public bool FadeWithEffect
     {
         get => _panel.FadeWithEffect;
@@ -98,6 +104,11 @@ public class DissolvingPanelActionList : DesignerActionList
             "Dissolve",
             "Length of one transition in milliseconds."),
         new DesignerActionPropertyItem(
+            nameof(Easing),
+            "Easing",
+            "Dissolve",
+            "Speed curve applied to the transition timeline."),
+        new DesignerActionPropertyItem(
             nameof(SlideFrom),
             "Slide in",
             "Dissolve",
@@ -119,7 +130,7 @@ public class DissolvingPanelActionList : DesignerActionList
             nameof(ResetToDefaults),
             "Reset to defaults",
             "Dissolve",
-            "Restore Dissolve, 400 ms, no slide and no extra fade.",
+            "Restore Dissolve, 400 ms, ease in-out, no slide and no extra fade.",
             true),
     };
 
@@ -131,6 +142,7 @@ public class DissolvingPanelActionList : DesignerActionList
     {
         Effect = DissolveEffect.Dissolve;
         Duration = 400;
+        Easing = EasingMode.EaseInOut;
         SlideFrom = SlideDirection.None;
         FadeWithEffect = false;
     }

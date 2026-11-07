@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>DissolvingPanel</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Title>DissolvingPanel</Title>
     <Authors>Dwain Snickles</Authors>
     <Description>WinForms panel that dissolves its contents away and back with 21 PowerPoint-style transitions, an optional slide-in, and a designer smart tag.</Description>

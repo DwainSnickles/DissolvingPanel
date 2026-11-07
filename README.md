@@ -73,7 +73,8 @@ Targets `net8.0-windows` and later, using `UseWindowsForms`.
 | `PlayDesignPreview()` | Play the transition once on the design surface, then restore the children. |
 
 Selecting the control in the Visual Studio designer shows a **Dissolve** smart tag
-with the effect, duration, fade option and a reset command.
+with the effect, duration, easing, slide edge, fade option, a preview command
+and a reset command.
 
 ## Sample app
 
