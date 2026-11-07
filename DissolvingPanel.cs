@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
@@ -81,6 +82,7 @@ public class DissolvingPanel : Panel
     private double _from = 1d;
     private double _to = 1d;
     private int _elapsed;
+    private readonly Stopwatch _clock = new Stopwatch();
     private bool _designTimePreview;
 
     public DissolvingPanel()
@@ -206,6 +208,7 @@ public class DissolvingPanel : Panel
         _from = 0d;
         _to = 1d;
         _elapsed = 0;
+        _clock.Restart();
         IsDissolved = false;
         _ticker.Start();
     }
@@ -255,6 +258,7 @@ public class DissolvingPanel : Panel
         _from = _progress;
         _to = target;
         _elapsed = 0;
+        _clock.Restart();
         IsDissolved = false;
         _ticker.Start();
     }
@@ -310,7 +314,7 @@ public class DissolvingPanel : Panel
 
     private void OnTick(object sender, EventArgs e)
     {
-        _elapsed += _ticker.Interval;
+        _elapsed = (int)_clock.ElapsedMilliseconds;
         var duration = Math.Max(1, Duration);
         var t = Math.Min(1d, _elapsed / (double)duration);
         var eased = ApplyEasing(Easing, t);
