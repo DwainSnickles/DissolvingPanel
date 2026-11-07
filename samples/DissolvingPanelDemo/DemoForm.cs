@@ -14,6 +14,8 @@ internal sealed class DemoForm : Form
     {
         DropDownStyle = ComboBoxStyle.DropDownList,
         FlatStyle = FlatStyle.Flat,
+        DrawMode = DrawMode.OwnerDrawFixed,
+        DropDownWidth = 190,
         Width = 152,
         Margin = new Padding(0, 3, 0, 0),
     };
@@ -62,6 +64,8 @@ internal sealed class DemoForm : Form
     };
 
     private int _page;
+    private DissolveEffect _currentEffect;
+    private Font _groupFont;
 
     public DemoForm()
     {
@@ -72,8 +76,18 @@ internal sealed class DemoForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Color.White;
 
-        _effects.Items.AddRange(Enum.GetValues<DissolveEffect>().Cast<object>().ToArray());
-        _effects.SelectedItem = _card.Panel.Effect;
+        foreach (var group in DissolveEffectCatalog.Groups)
+        {
+            _effects.Items.Add(group);
+            foreach (var effect in group.Effects)
+            {
+                _effects.Items.Add(effect);
+            }
+        }
+
+        _effects.DrawItem += DrawEffectItem;
+        _currentEffect = _card.Panel.Effect;
+        _effects.SelectedItem = _currentEffect;
 
         _slide.Items.AddRange(Enum.GetValues<SlideDirection>().Cast<object>().ToArray());
         _slide.SelectedItem = SlideDirection.None;
@@ -103,7 +117,25 @@ internal sealed class DemoForm : Form
         Controls.Add(_card.Panel);
         Controls.Add(bar);
 
-        _effects.SelectedIndexChanged += (_, _) => Play();
+        _effects.SelectedIndexChanged += (_, _) =>
+        {
+            if (_effects.SelectedItem is not DissolveEffect effect)
+            {
+                // Category headings are labels, not choices.
+                _effects.SelectedItem = _currentEffect;
+                return;
+            }
+
+            if (effect == _currentEffect)
+            {
+                return;
+            }
+
+            _currentEffect = effect;
+            _card.Panel.Effect = effect;
+            Text = "DissolvingPanel demo - " + DissolveEffectCatalog.DisplayName(effect);
+            Play();
+        };
         _slide.SelectedIndexChanged += (_, _) =>
         {
             _card.Panel.SlideFrom = (SlideDirection)_slide.SelectedItem;
@@ -122,6 +154,40 @@ internal sealed class DemoForm : Form
         ForeColor = Color.FromArgb(104, 112, 124),
         Margin = new Padding(10, 7, 6, 0),
     };
+
+    private void DrawEffectItem(object sender, DrawItemEventArgs e)
+    {
+        if (e.Index < 0)
+        {
+            return;
+        }
+
+        var item = _effects.Items[e.Index];
+        var isGroup = item is EffectGroup;
+        e.DrawBackground();
+
+        var bounds = isGroup
+            ? e.Bounds
+            : new Rectangle(e.Bounds.X + 10, e.Bounds.Y, e.Bounds.Width - 10, e.Bounds.Height);
+        var colour = (e.State & DrawItemState.Selected) == DrawItemState.Selected
+            ? SystemColors.HighlightText
+            : isGroup ? SystemColors.GrayText : SystemColors.ControlText;
+
+        _groupFont ??= new Font(_effects.Font, FontStyle.Bold);
+        TextRenderer.DrawText(
+            e.Graphics,
+            isGroup ? ((EffectGroup)item).Name : DissolveEffectCatalog.DisplayName((DissolveEffect)item),
+            isGroup ? _groupFont : _effects.Font,
+            bounds,
+            colour,
+            TextFormatFlags.VerticalCenter);
+    }
+
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        _groupFont?.Dispose();
+        base.OnFormClosed(e);
+    }
 
     private void Play()
     {

@@ -50,10 +50,19 @@ Targets `net8.0-windows` and later, using `UseWindowsForms`.
 
 ## Effects
 
-`Fade`, `Dissolve`, `WipeLeft`, `WipeRight`, `WipeUp`, `WipeDown`,
-`PushLeft`, `PushRight`, `PushUp`, `PushDown`, `SplitHorizontal`, `SplitVertical`,
-`BlindsHorizontal`, `BlindsVertical`, `Checkerboard`, `RandomBars`, `Circle`,
-`Diamond`, `Box`, `Wheel`, `Zoom`.
+21 transitions, grouped the way the designer and the property grid show them:
+
+| Category | Effects |
+| --- | --- |
+| **Fades** | `Fade`, `Dissolve` |
+| **Wipes** | `WipeLeft`, `WipeRight`, `WipeUp`, `WipeDown`, `SplitHorizontal`, `SplitVertical`, `BlindsHorizontal`, `BlindsVertical` |
+| **Pushes** | `PushLeft`, `PushRight`, `PushUp`, `PushDown` |
+| **Shape reveals** | `Circle`, `Diamond`, `Box`, `Wheel`, `Zoom`, `Checkerboard`, `RandomBars` |
+
+The grouping lives in `DissolveEffectCatalog` (`Groups`, `Ordered`, `DisplayName`). The
+`Effect` property uses it through `DissolveEffectConverter` and `DissolveEffectEditor`,
+so the property grid drop-down lists every effect under its category heading in this
+order — and so can your own combo boxes, as the sample app shows.
 
 ## API
 
