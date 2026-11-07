@@ -159,6 +159,18 @@ public class DissolvingPanel : Panel
 
     public void ResetDissolve()
     {
+        AbandonTransition();
+        Invalidate();
+    }
+
+    /// <summary>
+    /// Drops whatever the transition was doing and always puts the children back.
+    /// Every abort path goes through here, so a half-played transition can never
+    /// leave the panel's contents hidden - which matters most at design time,
+    /// where a hidden child would be written back into the designer file.
+    /// </summary>
+    private void AbandonTransition()
+    {
         StopTicker();
         ReleaseSnapshot();
         RestoreChildren();
@@ -166,7 +178,6 @@ public class DissolvingPanel : Panel
         _from = 1d;
         _to = 1d;
         IsDissolved = false;
-        Invalidate();
     }
 
     /// <summary>
@@ -373,6 +384,7 @@ public class DissolvingPanel : Panel
         try
         {
             ResetDissolve();
+            _designTimePreview = true;
             AnimateTo(0d);
         }
         catch
@@ -731,6 +743,7 @@ public class DissolvingPanel : Panel
     }
 
     private void StopTicker()
+
     {
         if (_ticker.Enabled)
         {
@@ -746,14 +759,23 @@ public class DissolvingPanel : Panel
 
         if (!Visible)
         {
-            StopTicker();
+            AbandonTransition();
         }
+    }
+
+    protected override void OnHandleDestroyed(EventArgs e)
+    {
+        // The design surface recreates handles while editing; never keep a
+        // transition (or hidden children) across that.
+        AbandonTransition();
+        base.OnHandleDestroyed(e);
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
+            AbandonTransition();
             _ticker.Tick -= OnTick;
             _ticker.Dispose();
             ReleaseSnapshot();
