@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
@@ -9,6 +10,8 @@ using System.Windows.Forms;
 namespace DissolvingPanels;
 
 /// <summary>Transitions the panel can use, modelled on PowerPoint slide effects.</summary>
+[TypeConverter(typeof(DissolveEffectConverter))]
+[Editor(typeof(DissolveEffectEditor), typeof(UITypeEditor))]
 public enum DissolveEffect
 {
     Fade,
@@ -44,6 +47,15 @@ public enum SlideDirection
     FromBottom,
 }
 
+/// <summary>Speed curve applied to the transition timeline.</summary>
+public enum EasingMode
+{
+    Linear,
+    EaseIn,
+    EaseOut,
+    EaseInOut,
+}
+
 /// <summary>
 /// A panel whose contents leave and return with a PowerPoint style transition.
 /// Child controls are hidden while the panel is dissolved so they cannot be
@@ -69,6 +81,7 @@ public class DissolvingPanel : Panel
     private double _from = 1d;
     private double _to = 1d;
     private int _elapsed;
+    private bool _designTimePreview;
 
     public DissolvingPanel()
     {
@@ -110,6 +123,11 @@ public class DissolvingPanel : Panel
     [DefaultValue(SlideDirection.None)]
     [Description("Slides the whole contents in from this edge while the effect plays.")]
     public SlideDirection SlideFrom { get; set; }
+
+    [Category("Dissolve")]
+    [DefaultValue(EasingMode.EaseInOut)]
+    [Description("Speed curve applied to the transition timeline.")]
+    public EasingMode Easing { get; set; } = EasingMode.EaseInOut;
 
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -157,7 +175,7 @@ public class DissolvingPanel : Panel
     /// </summary>
     public void PlayIn()
     {
-        if (IsDisposed || DesignMode || !IsHandleCreated || !Visible || Width <= 0 || Height <= 0)
+        if (IsDisposed || (DesignMode && !_designTimePreview) || !IsHandleCreated || !Visible || Width <= 0 || Height <= 0)
         {
             return;
         }
@@ -201,7 +219,7 @@ public class DissolvingPanel : Panel
 
     private void AnimateTo(double target)
     {
-        if (IsDisposed || DesignMode)
+        if (IsDisposed || (DesignMode && !_designTimePreview))
         {
             return;
         }
@@ -278,7 +296,7 @@ public class DissolvingPanel : Panel
         _elapsed += _ticker.Interval;
         var duration = Math.Max(1, Duration);
         var t = Math.Min(1d, _elapsed / (double)duration);
-        var eased = t < 0.5d ? 2d * t * t : 1d - (Math.Pow((-2d * t) + 2d, 2d) / 2d);
+        var eased = ApplyEasing(Easing, t);
 
         _progress = _from + ((_to - _from) * eased);
         Invalidate();
@@ -287,6 +305,19 @@ public class DissolvingPanel : Panel
         {
             Complete();
         }
+    }
+
+    private static double ApplyEasing(EasingMode mode, double t)
+    {
+        t = Math.Max(0d, Math.Min(1d, t));
+
+        return mode switch
+        {
+            EasingMode.Linear => t,
+            EasingMode.EaseIn => t * t,
+            EasingMode.EaseOut => 1d - ((1d - t) * (1d - t)),
+            _ => t < 0.5d ? 2d * t * t : 1d - (Math.Pow((-2d * t) + 2d, 2d) / 2d),
+        };
     }
 
     private void Complete()
@@ -305,7 +336,50 @@ public class DissolvingPanel : Panel
             RestoreChildren();
         }
 
+        var returnToRest = _designTimePreview && IsDissolved;
+        if (_designTimePreview && !IsDissolved)
+        {
+            _designTimePreview = false;
+        }
+
         DissolveCompleted?.Invoke(this, EventArgs.Empty);
+
+        if (returnToRest)
+        {
+            AnimateTo(1d);
+        }
+    }
+
+    /// <summary>
+    /// Plays the dissolve out and back once so the effect can be judged on the design
+    /// surface, without starting the application. Used by the designer verb and smart tag;
+    /// the panel is left exactly as it was, with its children restored.
+    /// </summary>
+    public void PlayDesignPreview()
+    {
+        if (IsDisposed || IsAnimating || Width <= 0 || Height <= 0)
+        {
+            return;
+        }
+
+        if (!IsHandleCreated)
+        {
+            // The design surface may not have realised the window yet.
+            _ = Handle;
+        }
+
+        _designTimePreview = true;
+
+        try
+        {
+            ResetDissolve();
+            AnimateTo(0d);
+        }
+        catch
+        {
+            _designTimePreview = false;
+            ResetDissolve();
+        }
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -583,6 +657,13 @@ public class DissolvingPanel : Panel
 
     private void HideChildren()
     {
+        // Already hidden by the current transition: keep the record of which children
+        // these are so they can still be restored when the panel comes back.
+        if (_hiddenChildren is not null)
+        {
+            return;
+        }
+
         var hidden = new List<Control>();
         foreach (Control child in Controls)
         {
@@ -617,6 +698,13 @@ public class DissolvingPanel : Panel
 
     private void CaptureSnapshot()
     {
+        // While the children are hidden the snapshot is the only copy of how they look,
+        // so keep it instead of capturing an empty panel.
+        if (_snapshot is not null && _hiddenChildren is not null)
+        {
+            return;
+        }
+
         ReleaseSnapshot();
 
         if (Width <= 0 || Height <= 0)

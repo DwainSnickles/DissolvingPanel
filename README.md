@@ -63,12 +63,14 @@ Targets `net8.0-windows` and later, using `UseWindowsForms`.
 | `Duration` | Length of one transition, in milliseconds. |
 | `FadeWithEffect` | Also ramp opacity while the shape effect runs. |
 | `SlideFrom` | Slide the whole contents in from an edge while the effect plays. |
+| `Easing` | Speed curve: `Linear`, `EaseIn`, `EaseOut` or `EaseInOut` (default). |
 | `DissolveOut()` / `DissolveIn()` / `Toggle()` | Run a transition. |
 | `PlayIn()` | Reset and animate from dissolved to visible — handy when a tab page appears. |
 | `ResetDissolve()` | Stop any running transition and restore the children. |
 | `IsAnimating` / `IsDissolved` | Current state. |
 | `DissolveCompleted` | Raised when a transition finishes. |
 | `RenderFrame(float)` | Render one frame at a fixed progress without animating (previews, docs, tests). |
+| `PlayDesignPreview()` | Play the transition once on the design surface, then restore the children. |
 
 Selecting the control in the Visual Studio designer shows a **Dissolve** smart tag
 with the effect, duration, fade option and a reset command.

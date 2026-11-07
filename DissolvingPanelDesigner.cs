@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Windows.Forms.Design;
@@ -10,6 +11,8 @@ namespace DissolvingPanels;
 /// </summary>
 public class DissolvingPanelDesigner : ControlDesigner
 {
+    private DesignerVerbCollection _verbs;
+
     public override DesignerActionListCollection ActionLists
     {
         get
@@ -17,6 +20,31 @@ public class DissolvingPanelDesigner : ControlDesigner
             var actions = new DesignerActionListCollection();
             actions.Add(new DissolvingPanelActionList(Component));
             return actions;
+        }
+    }
+
+    /// <summary>Right-click verb that plays the transition on the design surface.</summary>
+    public override DesignerVerbCollection Verbs
+    {
+        get
+        {
+            if (_verbs is null)
+            {
+                _verbs = new DesignerVerbCollection
+                {
+                    new DesignerVerb("Play dissolve preview", OnPlayDissolvePreview),
+                };
+            }
+
+            return _verbs;
+        }
+    }
+
+    private void OnPlayDissolvePreview(object sender, EventArgs e)
+    {
+        if (Component is DissolvingPanel panel)
+        {
+            panel.PlayDesignPreview();
         }
     }
 }
@@ -50,6 +78,12 @@ public class DissolvingPanelActionList : DesignerActionList
         set => SetValue(nameof(DissolvingPanel.FadeWithEffect), value);
     }
 
+    public SlideDirection SlideFrom
+    {
+        get => _panel.SlideFrom;
+        set => SetValue(nameof(DissolvingPanel.SlideFrom), value);
+    }
+
     public override DesignerActionItemCollection GetSortedActionItems() => new DesignerActionItemCollection
     {
         new DesignerActionHeaderItem("Dissolve"),
@@ -64,24 +98,40 @@ public class DissolvingPanelActionList : DesignerActionList
             "Dissolve",
             "Length of one transition in milliseconds."),
         new DesignerActionPropertyItem(
+            nameof(SlideFrom),
+            "Slide in",
+            "Dissolve",
+            "Slide the whole contents in from this edge while the effect plays."),
+        new DesignerActionPropertyItem(
             nameof(FadeWithEffect),
             "Fade with effect",
             "Dissolve",
             "Fade the contents while the effect runs."),
         new DesignerActionMethodItem(
             this,
+            nameof(PlayPreview),
+            "Play preview",
+            "Dissolve",
+            "Runs the dissolve out and back on the design surface.",
+            false),
+        new DesignerActionMethodItem(
+            this,
             nameof(ResetToDefaults),
             "Reset to defaults",
             "Dissolve",
-            "Restore Dissolve, 400 ms and no extra fade.",
+            "Restore Dissolve, 400 ms, no slide and no extra fade.",
             true),
     };
+
+    /// <summary>Plays the transition once on the design surface.</summary>
+    public void PlayPreview() => _panel.PlayDesignPreview();
 
     /// <summary>Restores the effect defaults.</summary>
     public void ResetToDefaults()
     {
         Effect = DissolveEffect.Dissolve;
         Duration = 400;
+        SlideFrom = SlideDirection.None;
         FadeWithEffect = false;
     }
 
