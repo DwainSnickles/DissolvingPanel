@@ -77,9 +77,9 @@ with the effect, duration, easing, slide edge, fade option, a preview command
 and a reset command.
 
 **Play preview** (or the "Play dissolve preview" verb on the context menu) runs the
-transition once on the design surface. It always puts the surface back: aborting it
-by clicking elsewhere or switching tabs restores every child control, so nothing is
-left hidden in the designer.
+transition once on the design surface.It always puts the surface back: if the panel is hidden, its handle is recreated, or
+it is disposed while the preview is running, every child control is restored, so
+nothing is left hidden in the designer file.
 
 ## Sample app
 

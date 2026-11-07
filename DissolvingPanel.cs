@@ -178,6 +178,7 @@ public class DissolvingPanel : Panel
         _from = 1d;
         _to = 1d;
         IsDissolved = false;
+        _designTimePreview = false;
     }
 
     /// <summary>
