@@ -66,6 +66,21 @@ with the effect, duration, fade option and a reset command.
 - `PlayIn()` is a no-op while the control is invisible or undisposed handles do not
   exist yet, so it is safe to call from a `SelectedIndexChanged` handler.
 
+## Releasing
+
+Version tags publish to nuget.org automatically:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+`.github/workflows/release.yml` takes the version from the tag (`v1.0.1` → `1.0.1`), builds,
+packs and pushes to nuget.org, so nothing needs bumping by hand. It needs one repository
+secret, `NUGET_API_KEY`, created at nuget.org → Account → API keys with the
+"Push new packages" scope. Tags such as `v1.1.0-beta.1` publish as pre-releases, and
+`--skip-duplicate` makes re-running a tag harmless.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

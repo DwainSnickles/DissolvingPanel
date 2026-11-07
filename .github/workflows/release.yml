@@ -1,0 +1,68 @@
+name: release
+
+# Publishes DissolvingPanel to nuget.org when a version tag is pushed.
+#   1. add a repository secret named NUGET_API_KEY (nuget.org → API keys, "Push new packages" scope)
+#   2. git tag v1.2.3 && git push origin v1.2.3
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Read the version from the tag
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a version like v1.2.3"
+            exit 1
+          fi
+          echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "Publishing version $version"
+
+      - name: Check the nuget.org API key
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error::Add a repository secret named NUGET_API_KEY (nuget.org, scope: Push new packages)."
+            exit 1
+          fi
+
+      - name: Build
+        run: dotnet build -c Release --nologo -p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: Pack
+        run: dotnet pack -c Release --nologo -p:Version=${{ env.PACKAGE_VERSION }} -o artifacts
+
+      - name: Publish to nuget.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: >
+          dotnet nuget push artifacts/*.nupkg
+          --api-key $NUGET_API_KEY
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkg-${{ env.PACKAGE_VERSION }}
+          path: artifacts/*.nupkg
