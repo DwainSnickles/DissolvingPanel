@@ -125,6 +125,11 @@ public class DissolvingPanel : Panel
     public SlideDirection SlideFrom { get; set; }
 
     [Category("Dissolve")]
+    [DefaultValue(0)]
+    [Description("Pixels the contents travel while sliding in. 0 travels the full panel, which reads as a sweep rather than a nudge.")]
+    public int SlideDistance { get; set; }
+
+    [Category("Dissolve")]
     [DefaultValue(EasingMode.EaseInOut)]
     [Description("Speed curve applied to the transition timeline.")]
     public EasingMode Easing { get; set; } = EasingMode.EaseInOut;
@@ -587,12 +592,16 @@ public class DissolvingPanel : Panel
     {
         var away = 1f - p;
 
+        // SlideDistance keeps the travel short; 0 keeps the original full-panel sweep.
+        var slideX = SlideDistance > 0 ? Math.Min(SlideDistance, width) : width;
+        var slideY = SlideDistance > 0 ? Math.Min(SlideDistance, height) : height;
+
         return SlideFrom switch
         {
-            SlideDirection.FromLeft => (-width * away, 0f),
-            SlideDirection.FromRight => (width * away, 0f),
-            SlideDirection.FromTop => (0f, -height * away),
-            SlideDirection.FromBottom => (0f, height * away),
+            SlideDirection.FromLeft => (-slideX * away, 0f),
+            SlideDirection.FromRight => (slideX * away, 0f),
+            SlideDirection.FromTop => (0f, -slideY * away),
+            SlideDirection.FromBottom => (0f, slideY * away),
             _ => (0f, 0f),
         };
     }

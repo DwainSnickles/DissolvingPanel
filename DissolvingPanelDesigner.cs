@@ -78,6 +78,12 @@ public class DissolvingPanelActionList : DesignerActionList
         set => SetValue(nameof(DissolvingPanel.Easing), value);
     }
 
+    public int SlideDistance
+    {
+        get => _panel.SlideDistance;
+        set => SetValue(nameof(DissolvingPanel.SlideDistance), value);
+    }
+
     public bool FadeWithEffect
     {
         get => _panel.FadeWithEffect;
@@ -114,6 +120,11 @@ public class DissolvingPanelActionList : DesignerActionList
             "Dissolve",
             "Slide the whole contents in from this edge while the effect plays."),
         new DesignerActionPropertyItem(
+            nameof(SlideDistance),
+            "Slide distance (px)",
+            "Dissolve",
+            "How far the contents travel while sliding in. 0 travels the full panel."),
+        new DesignerActionPropertyItem(
             nameof(FadeWithEffect),
             "Fade with effect",
             "Dissolve",
@@ -144,6 +155,7 @@ public class DissolvingPanelActionList : DesignerActionList
         Duration = 400;
         Easing = EasingMode.EaseInOut;
         SlideFrom = SlideDirection.None;
+        SlideDistance = 0;
         FadeWithEffect = false;
     }
 

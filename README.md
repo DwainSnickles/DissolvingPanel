@@ -72,6 +72,7 @@ order — and so can your own combo boxes, as the sample app shows.
 | `Duration` | Length of one transition, in milliseconds. |
 | `FadeWithEffect` | Also ramp opacity while the shape effect runs. |
 | `SlideFrom` | Slide the whole contents in from an edge while the effect plays. |
+| `SlideDistance` | Pixels travelled while sliding in; `0` slides the full panel width. |
 | `Easing` | Speed curve: `Linear`, `EaseIn`, `EaseOut` or `EaseInOut` (default). |
 | `DissolveOut()` / `DissolveIn()` / `Toggle()` | Run a transition. |
 | `PlayIn()` | Reset and animate from dissolved to visible — handy when a tab page appears. |
@@ -82,7 +83,7 @@ order — and so can your own combo boxes, as the sample app shows.
 | `PlayDesignPreview()` | Play the transition once on the design surface, then restore the children. |
 
 Selecting the control in the Visual Studio designer shows a **Dissolve** smart tag
-with the effect, duration, easing, slide edge, fade option, a preview command
+with the effect, duration, easing, slide edge and distance, fade option, a preview command
 and a reset command.
 
 **Play preview** (or the "Play dissolve preview" verb on the context menu) runs the
