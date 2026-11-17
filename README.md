@@ -25,20 +25,7 @@ panel.DissolveOut();
 panel.DissolveIn();
 ```
 
-## Screenshots
-
-Nine of the built-in effects, each captured mid-transition at 45 %:
-
-![Nine DissolvingPanel effects captured mid-transition](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/effects.png)
-
-`Circle`, frame by frame at 20 %, 45 %, 70 % and 95 %. The panel draws the snapshot
-it took on the first frame, so nothing behind it reflows or repaints mid-animation:
-
-![The Circle effect frame by frame](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/sequence.png)
-
-The sample app, with every option live:
-
-![The sample WinForms app](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/demo.png)
+## Screenshot
 
 The high-tech effects lab includes a button for each of the 21 transitions:
 
@@ -114,8 +101,7 @@ It references the library project directly, making it a runnable example of usin
 dotnet run --project samples/DissolvingPanelEffectsDemo
 ```
 
-The images above come from that same app running offscreen through `RenderFrame`,
-so they can be regenerated without taking a screenshot:
+The original sample can also render transition frames offscreen through `RenderFrame`:
 
 ```bash
 dotnet run --project samples/DissolvingPanelDemo -- --shots docs
