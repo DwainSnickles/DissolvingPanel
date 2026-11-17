@@ -40,6 +40,10 @@ The sample app, with every option live:
 
 ![The sample WinForms app](https://raw.githubusercontent.com/DwainSnickles/DissolvingPanel/main/docs/demo.png)
 
+The high-tech effects lab includes a button for each of the 21 transitions:
+
+![DissolvingPanel effects demo with all 21 transition buttons](docs/effects-demo-screenshot.png)
+
 ## Install
 
 ```
@@ -91,7 +95,7 @@ transition once on the design surface.It always puts the surface back: if the pa
 it is disposed while the preview is running, every child control is restored, so
 nothing is left hidden in the designer file.
 
-## Sample app
+## Sample apps
 
 `samples/DissolvingPanelDemo` is a small WinForms app wired to the control: pick an
 effect, a duration, a slide edge and whether to fade, and the card replays straight
@@ -99,6 +103,15 @@ away. **Next page** swaps the content and animates the new content in.
 
 ```bash
 dotnet run --project samples/DissolvingPanelDemo
+```
+
+`samples/DissolvingPanelEffectsDemo` is a standalone .NET 10 WinForms app with a
+button for every transition. Select an effect to watch the panel animate out and back.
+It references the library project directly, making it a runnable example of using the
+.NET 8 control from a .NET 10 application.
+
+```bash
+dotnet run --project samples/DissolvingPanelEffectsDemo
 ```
 
 The images above come from that same app running offscreen through `RenderFrame`,
