@@ -133,3 +133,9 @@ secret, `NUGET_API_KEY`, created at nuget.org → Account → API keys with the
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Support this project
+
+If this project saved you some time, you can leave a tip at
+[ko-fi.com/dwainhsnickles](https://ko-fi.com/dwainhsnickles) (cards, no account needed) or
+[paypal.me/YTDPlatinum](https://paypal.me/YTDPlatinum). Bug reports and pull requests are welcome too.
